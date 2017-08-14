@@ -456,7 +456,7 @@ describe('ExtractGQL', () => {
 
       const jsEgql = new ExtractGQL({
         inputFilePath: 'idk',
-        extension: 'js',
+        extensions: ['js'],
         inJsCode: true,
         outputFilePath: 'idk',
       });
