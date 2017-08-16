@@ -47,7 +47,13 @@ export type ExtractGQLOptions = {
   queryTransformers?: QueryTransformer[],
   extension?: string,
   inJsCode?: boolean,
-}
+};
+
+export enum PathType {
+  DIRECTORY,
+  FILE,
+  SYMBOLIC_LINK
+};
 
 export class ExtractGQL {
   public inputFilePath: string;
@@ -93,13 +99,19 @@ export class ExtractGQL {
   }
 
   // Checks if a given path points to a directory.
-  public static isDirectory(path: string): Promise<boolean> {
-    return new Promise<boolean>((resolve, reject) => {
-      fs.stat(path, (err, stats) => {
+  public static pathType(path: string): Promise<PathType> {
+    return new Promise<PathType>((resolve, reject) => {
+      fs.lstat(path, (err, stats) => {
         if (err) {
           reject(err);
         } else {
-          resolve(stats.isDirectory());
+          if (stats.isDirectory()) {
+            resolve(PathType.DIRECTORY);
+          } else if (stats.isSymbolicLink()) {
+            resolve(PathType.SYMBOLIC_LINK);
+          } else {
+            resolve(PathType.FILE);
+          }
         }
       });
     });
@@ -226,8 +238,14 @@ export class ExtractGQL {
 
   public readInputPath(inputPath: string): Promise<string> {
     return new Promise<string>((resolve, reject) => {
-      ExtractGQL.isDirectory(inputPath).then((isDirectory) => {
-        if (isDirectory) {
+      ExtractGQL.pathType(inputPath).then((pathType) => {
+        // Ignoring symbolic links for now because we don't want to
+        // attempt to read them as files. This assumes that linked 
+        // files and directories are fine to ignore.
+        // TODO(emilyling): Resolve symbolic links
+        if (pathType === PathType.SYMBOLIC_LINK) {
+          resolve('');
+        } else if (pathType === PathType.DIRECTORY) {
           console.log(`Crawling ${inputPath}...`);
           // Recurse over the files within this directory.
           fs.readdir(inputPath, (err, items) => {
@@ -239,7 +257,7 @@ export class ExtractGQL {
             });
 
             Promise.all(promises).then((queryStrings: string[]) => {
-              resolve(queryStrings.reduce((x, y) => x + y));
+                resolve(queryStrings.reduce((x, y) => x + y, ""));
             });
           });
         } else {

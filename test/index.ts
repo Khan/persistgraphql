@@ -6,6 +6,7 @@ import {
 } from '../src/extractFromAST';
 
 import {
+  PathType,
   ExtractGQL,
 } from '../src/ExtractGQL';
 
@@ -57,17 +58,17 @@ describe('ExtractGQL', () => {
     });
   });
 
-  describe('isDirectory', () => {
-    it('should return true on a directory', (done) => {
-      ExtractGQL.isDirectory('./test/fixtures').then((result: boolean) => {
-        assert(result);
+  describe('pathType', () => {
+    it('should return PathType.DIRECTORY on a directory', (done) => {
+      ExtractGQL.pathType('./test/fixtures').then((result) => {
+        assert(result === PathType.DIRECTORY);
         done();
       });
     });
 
-    it('should return false on a file', (done) => {
-      ExtractGQL.isDirectory('./test/fixtures/single_query/queries.graphql').then((result) => {
-        assert(!result);
+    it('should return PathType.FILE on a file', (done) => {
+      ExtractGQL.pathType('./test/fixtures/single_query/queries.graphql').then((result) => {
+        assert(result  === PathType.FILE);
         done();
       });
     });
