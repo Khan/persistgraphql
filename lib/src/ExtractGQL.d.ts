@@ -6,6 +6,7 @@ export declare type ExtractGQLOptions = {
     queryTransformers?: QueryTransformer[];
     extensions?: string[];
     inJsCode?: boolean;
+    excludePaths?: string[];
 };
 export declare enum PathType {
     DIRECTORY = 0,
@@ -19,11 +20,13 @@ export declare class ExtractGQL {
     queryTransformers: QueryTransformer[];
     extensions: string[];
     inJsCode: boolean;
+    excludePaths: string[];
     literalTag: string;
     static getFileExtension(filePath: string): string;
     static readFile(filePath: string): Promise<string>;
     static pathType(path: string): Promise<PathType>;
-    constructor({inputFilePath, outputFilePath, queryTransformers, extensions, inJsCode}: ExtractGQLOptions);
+    static normalizePath(path: string): string;
+    constructor({inputFilePath, outputFilePath, queryTransformers, extensions, inJsCode, excludePaths}: ExtractGQLOptions);
     addQueryTransformer(queryTransformer: QueryTransformer): void;
     applyQueryTransformers(document: DocumentNode): DocumentNode;
     getQueryKey(definition: OperationDefinitionNode): string;

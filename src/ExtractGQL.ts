@@ -47,6 +47,7 @@ export type ExtractGQLOptions = {
   queryTransformers?: QueryTransformer[],
   extensions?: string[],
   inJsCode?: boolean,
+  excludePaths?: string[],
 };
 
 export enum PathType {
@@ -71,6 +72,9 @@ export class ExtractGQL {
 
   // Whether to look for standalone .graphql files or template literals in JavaScript code
   public inJsCode: boolean = false;
+
+  // The file paths to exclude
+  public excludePaths: string[] = [];
 
   // The template literal tag for GraphQL queries in JS code
   public literalTag: string = 'gql';
@@ -117,18 +121,33 @@ export class ExtractGQL {
     });
   }
 
+  // Remove '/' after the path if it's present
+  public static normalizePath(path: string): string {
+    while (path.slice(-1) === '/') {
+      path = path.slice(0, -1);
+    }
+    return path;
+  }
+
   constructor({
     inputFilePath,
     outputFilePath = 'extracted_queries.json',
     queryTransformers = [],
     extensions = ['graphql'],
     inJsCode = false,
+    excludePaths = [],
   }: ExtractGQLOptions) {
-    this.inputFilePath = inputFilePath;
+    this.inputFilePath = ExtractGQL.normalizePath(inputFilePath);
     this.outputFilePath = outputFilePath;
     this.queryTransformers = queryTransformers;
     this.extensions = extensions;
     this.inJsCode = inJsCode;
+
+    
+    for (var i = 0; i < excludePaths.length; i++) {
+      excludePaths[i] = ExtractGQL.normalizePath(excludePaths[i]);
+    }
+    this.excludePaths = excludePaths;
   }
 
   // Add a query transformer to the end of the list of query transformers.
@@ -239,11 +258,14 @@ export class ExtractGQL {
   public readInputPath(inputPath: string): Promise<string> {
     return new Promise<string>((resolve, reject) => {
       ExtractGQL.pathType(inputPath).then((pathType) => {
-        // Ignoring symbolic links for now because we don't want to
-        // attempt to read them as files. This assumes that linked 
-        // files and directories are fine to ignore.
-        // TODO(emilyling): Resolve symbolic links
-        if (pathType === PathType.SYMBOLIC_LINK) {
+        if (this.excludePaths.indexOf(inputPath) > -1) {
+          console.log(`Excluding path ${inputPath}`);
+          resolve('');
+        } else if (pathType === PathType.SYMBOLIC_LINK) {
+          // Ignoring symbolic links for now because we don't want to
+          // attempt to read them as files. This assumes that linked 
+          // files and directories are fine to ignore.
+          // TODO(emilyling): Resolve symbolic links
           resolve('');
         } else if (pathType === PathType.DIRECTORY) {
           console.log(`Crawling ${inputPath}...`);
@@ -383,6 +405,10 @@ export const main = (argv: YArgsv) => {
 
   if (argv['extension']) {
     options.extensions = argv['extension'].split(',');
+  }
+
+  if (argv['exclude']) {
+    options.excludePaths = argv['exclude'].split(',');
   }
 
   new ExtractGQL(options).extract();
