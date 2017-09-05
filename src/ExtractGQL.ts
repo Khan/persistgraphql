@@ -142,11 +142,6 @@ export class ExtractGQL {
     this.queryTransformers = queryTransformers;
     this.extensions = extensions;
     this.inJsCode = inJsCode;
-
-    
-    for (var i = 0; i < excludePaths.length; i++) {
-      excludePaths[i] = ExtractGQL.normalizePath(excludePaths[i]);
-    }
     this.excludePaths = excludePaths;
   }
 
@@ -286,7 +281,17 @@ export class ExtractGQL {
   public readInputPath(inputPath: string): Promise<string> {
     return new Promise<string>((resolve, reject) => {
       ExtractGQL.pathType(inputPath).then((pathType) => {
-        if (this.excludePaths.indexOf(inputPath) > -1) {
+        // Check if current inputPath matches any excluded path regexes
+        var isExcludedPath = false;
+        for (let excludePath of this.excludePaths) {
+          var re = new RegExp(excludePath);
+          if (re.test(inputPath)) {
+            isExcludedPath = true;
+            break;
+          }
+        }
+
+        if (isExcludedPath) {
           console.log(`Excluding path ${inputPath}`);
           resolve('');
         } else if (pathType === PathType.SYMBOLIC_LINK) {
