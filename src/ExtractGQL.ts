@@ -206,6 +206,34 @@ export class ExtractGQL {
   // Creates an OutputMap from an array of GraphQL documents read as strings.
   public createOutputMapFromString(docString: string): OutputMap {
     const doc = parse(docString);
+
+    // Check for duplicate operation names. When `separateOperations` is called
+    // below, it assumes that all operation names are unique; if duplicate
+    // operation names exist, only one of those queries will appear in the
+    // resulting map. So, we enforce that all query names are distinct to avoid
+    // unexpected/surprising behavior.
+    var operationNames = new Set<string>();
+    var duplicates = new Set<string>();
+    for (var i = 0; i < doc.definitions.length; i++) {
+      const name = doc.definitions[i].name.value;
+      if (operationNames.has(name)) {
+        console.log('Duplicate operation name found: ' + name);
+        duplicates.add(name);
+      }
+      operationNames.add(name);
+    }
+
+    // If there are duplicate operation names, raise an error and exit the process.
+    if (duplicates.size !== 0) {
+      var dupes = "";
+      duplicates.forEach(function(name) {
+        dupes += name + ", ";
+      });
+      dupes = dupes.substring(0, dupes.length - 2);
+      console.log("Found the following duplicate GraphQL operation names: " + dupes);
+      process.exit(1);
+    }
+
     const docMap = separateOperations(doc);
 
     const resultMaps = Object.keys(docMap).map((operationName) => {
