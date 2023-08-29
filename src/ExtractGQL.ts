@@ -212,7 +212,6 @@ export class ExtractGQL {
     var operationNames = new Set<string>();
     var duplicates = new Set<string>();
     for (var i = 0; i < doc.definitions.length; i++) {
-      console.log(doc.definitions[i]);
       const name = (doc.definitions[i] as OperationDefinitionNode).name.value;
       if (operationNames.has(name)) {
         console.log('Duplicate operation name found: ' + name);
