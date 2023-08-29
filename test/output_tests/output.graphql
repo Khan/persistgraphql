@@ -1,1 +1,1 @@
-{"{\n  author {\n    firstName\n    lastName\n  }\n}\n":9,"query otherQuery {\n  person {\n    firstName\n    lastName\n  }\n}\n":10}
+{"query firstQuery {\n  author {\n    firstName\n    lastName\n  }\n}":9,"query secondQuery {\n  person {\n    firstName\n    lastName\n  }\n}":10}

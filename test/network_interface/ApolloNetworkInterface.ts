@@ -17,7 +17,7 @@ import {
 import {
   NetworkInterface,
   Request,
-} from 'apollo-client/transport/networkInterface';
+} from 'apollo-client';
 
 import {
   getQueryDocumentKey,
@@ -60,6 +60,7 @@ describe('PersistedQueryNetworkInterface', () => {
       queryMap: {},
       enablePersistedQueries: false,
     });
+    // @ts-expect-error - DocumentNode's are incompatible
     pni.query({ query });
   });
 
@@ -81,6 +82,7 @@ describe('PersistedQueryNetworkInterface', () => {
       `,
     };
 
+    // @ts-expect-error - DocumentNode's are incompatible
     pni.query(request).then(() => {
       done(new Error('Result resolved when it should not have.'));
     }).catch((err: Error) => {
@@ -195,13 +197,14 @@ describe('PersistedQueryNetworkInterface', () => {
     });
 
     before(() => {
-      fetchMock.post(uri, (url: string, opts: Object): ExecutionResult => {
+      fetchMock.post(uri, (url: string, opts: Object): ExecutionResult<Object> => {
         const receivedObject = JSON.parse((opts as RequestInit).body.toString());
         if (_.isEqual(receivedObject, simpleQueryRequest)) {
           return { data: simpleQueryData };
         } else if (_.isEqual(receivedObject, fragmentQueryRequest)) {
           return { data: fragmentQueryData };
         } else if (_.isEqual(receivedObject, errorQueryRequest)) {
+          // @ts-expect-error - `errorQueryError` is supposed to be a `GraphQLError`
           return { data: errorQueryData, errors: [ errorQueryError ] };
         } else if (_.isEqual(receivedObject, variableQueryRequest)) {
           return { data: variableQueryData };
@@ -221,6 +224,7 @@ describe('PersistedQueryNetworkInterface', () => {
 
     it('should work for a single, no fragment query', (done) => {
       pni.query({
+        // @ts-expect-error - DocumentNode's are incompatible
         query: gql`
         query {
           author {
@@ -238,6 +242,7 @@ describe('PersistedQueryNetworkInterface', () => {
 
     it('should work for a query with a fragment', (done) => {
       pni.query({
+        // @ts-expect-error - DocumentNode's are incompatible
         query: gql`
           query {
             person {
@@ -257,6 +262,7 @@ describe('PersistedQueryNetworkInterface', () => {
 
     it('should work for a query that returns an error', (done) => {
       pni.query({
+        // @ts-expect-error - DocumentNode's are incompatible
         query: gql`
           query {
             house {
@@ -274,6 +280,7 @@ describe('PersistedQueryNetworkInterface', () => {
 
     it('should pass along variables to the server', (done) => {
       pni.query({
+        // @ts-expect-error - DocumentNode's are incompatible
         query: gql`
           query {
             person(id: $id) {
@@ -289,6 +296,7 @@ describe('PersistedQueryNetworkInterface', () => {
 
     it('should pass along the operation name to the server', (done) => {
       pni.query({
+        // @ts-expect-error - DocumentNode's are incompatible
         query: gql`
           query ListOfAuthors {
             author {
@@ -305,6 +313,7 @@ describe('PersistedQueryNetworkInterface', () => {
 
     it('should also work with mutations', (done) => {
       pni.query({
+        // @ts-expect-error - DocumentNode's are incompatible
         query: gql`
           mutation changeAuthorStuff {
             firstName
@@ -320,7 +329,8 @@ describe('PersistedQueryNetworkInterface', () => {
 
 describe('addPersistedQueries', () => {
   class GenericNetworkInterface implements NetworkInterface {
-    public query(originalQuery: Request): Promise<ExecutionResult> {
+    // NOTE(kevinb): `apollo-client`'s `ExecutionResult` is not the same as `graphql`'s
+    public query(originalQuery: Request): Promise<any> {
       return Promise.resolve(originalQuery as ExecutionResult);
     }
   }
@@ -353,8 +363,9 @@ describe('addPersistedQueries', () => {
   };
 
   it('should error with an unmapped query', (done) => {
-    const networkInterface = new GenericNetworkInterface();
+    const networkInterface: NetworkInterface = new GenericNetworkInterface();
     addPersistedQueries(networkInterface, {});
+    // @ts-expect-error - DocumentNode's are incompatible
     networkInterface.query(request).then(() => {
       done(new Error('Should not resolve'));
     }).catch((err) => {
@@ -376,6 +387,7 @@ describe('addPersistedQueries', () => {
     const networkInterface = new GenericNetworkInterface();
     addPersistedQueries(networkInterface, queryMap);
     const expectedId = queryMap[getQueryDocumentKey(request.query)];
+      // @ts-expect-error - DocumentNode's are incompatible
     return networkInterface.query(request).then((persistedQuery: persistedQueryType) => {
       const id = persistedQuery.id;
       const variables = persistedQuery.variables;

@@ -6,7 +6,7 @@ export declare class PersistedQueryNetworkInterface extends HTTPFetchNetworkInte
     _opts: RequestInit;
     _uri: string;
     enablePersistedQueries: boolean;
-    constructor({enablePersistedQueries, uri, queryMap, opts}: {
+    constructor({ enablePersistedQueries, uri, queryMap, opts, }: {
         enablePersistedQueries?: boolean;
         uri: string;
         queryMap: OutputMap;

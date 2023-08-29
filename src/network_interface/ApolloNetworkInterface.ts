@@ -6,6 +6,7 @@ import {
 
 import {
   ExecutionResult,
+  DocumentNode,
 } from 'graphql';
 
 import {
@@ -58,6 +59,8 @@ export function addPersistedQueries(networkInterface: NetworkInterface, queryMap
   return Object.assign(networkInterface, {
     query: (request: Request): Promise<ExecutionResult> => {
       const queryDocument = request.query;
+      // @ts-expect-error - apollo-client uses a different version of `graphql` with different
+      // types.
       const queryKey = getQueryDocumentKey(queryDocument);
 
       if (!queryMap[queryKey]) {
