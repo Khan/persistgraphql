@@ -4,6 +4,7 @@ import {
   DefinitionNode,
   OperationDefinitionNode,
   DocumentNode,
+  Kind,
   print,
 } from 'graphql';
 
@@ -26,10 +27,10 @@ import { cloneDeep } from 'lodash';
 // This probably means that this implementation should be exported as some kind of library,
 // along with some of the other AST-related stuff implemented for apollo-client.
 const TYPENAME_FIELD: FieldNode = {
-  kind: 'Field',
+  kind: Kind.FIELD,
   alias: null,
   name: {
-    kind: 'Name',
+    kind: Kind.NAME,
     value: '__typename',
   },
 };
@@ -45,6 +46,7 @@ function addTypenameToSelectionSet(
       });
 
       if (! alreadyHasThisField) {
+        // @ts-expect-error - selectionSet is readonly
         selectionSet.selections.push(TYPENAME_FIELD);
       }
     }

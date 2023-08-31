@@ -1,11 +1,11 @@
-query {
+query firstQuery {
   author {
     firstName
     lastName
   }
 }
 
-query otherQuery {
+query secondQuery {
   person {
     firstName
     lastName

@@ -6,7 +6,7 @@ const frag = gql`
 `;
 
 const query = gql`
-  query {
+  query firstQuery {
     author {
       ...details
     }

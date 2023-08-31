@@ -29,15 +29,15 @@ import gql from 'graphql-tag';
 
 describe('ExtractGQL', () => {
   const queries = gql`
-    query {
+    query firstQuery {
       author {
         firstName
         lastName
       }
     }
 
-    query otherQuery {
-      person {
+    query secondQuery {
+      person { 
         firstName
         lastName
       }
@@ -45,8 +45,8 @@ describe('ExtractGQL', () => {
 
   const egql = new ExtractGQL({ inputFilePath: 'not-real'});
   const keys = [
-    egql.getQueryKey(queries.definitions[0]),
-    egql.getQueryKey(queries.definitions[1]),
+    egql.getQueryKey(queries.definitions[0] as OperationDefinitionNode),
+    egql.getQueryKey(queries.definitions[1] as OperationDefinitionNode),
   ];
 
   it('should be able to construct an instance', () => {
@@ -170,7 +170,7 @@ describe('ExtractGQL', () => {
       const map = egql.createMapFromDocument(document);
       assert.equal(
         Object.keys(map)[0],
-        print(createDocumentFromQuery(document.definitions[0]))
+        print(createDocumentFromQuery(document.definitions[0] as OperationDefinitionNode))
       );
     });
 
@@ -236,10 +236,10 @@ describe('ExtractGQL', () => {
       const keys = Object.keys(map);
       assert.equal(keys.length, 2);
       assert.include(keys, myegql.getQueryDocumentKey(
-        createDocumentFromQuery(document.definitions[0])
+        createDocumentFromQuery(document.definitions[0] as OperationDefinitionNode)
       ));
       assert.include(keys, myegql.getQueryDocumentKey(
-        createDocumentFromQuery(document.definitions[1])
+        createDocumentFromQuery(document.definitions[1] as OperationDefinitionNode)
       ));
     });
 
@@ -379,7 +379,7 @@ describe('ExtractGQL', () => {
     it('should correctly process a file with a .graphql extension', (done) => {
       egql.readInputFile('./test/fixtures/single_query/queries.graphql').then((result: string) => {
         assert.equal(result.split('\n').length, 14);
-        assert.include(result, 'query {');
+        assert.include(result, 'query firstQuery {');
         assert.include(result, 'person {');
         assert.include(result, 'lastName');
         done();
@@ -393,11 +393,11 @@ describe('ExtractGQL', () => {
         assert.equal(Object.keys(result).length, 2);
         assert.include(
           Object.keys(result),
-          print(createDocumentFromQuery(queries.definitions[0]))
+          print(createDocumentFromQuery(queries.definitions[0] as OperationDefinitionNode))
         );
         assert.include(
           Object.keys(result),
-          print(createDocumentFromQuery(queries.definitions[1]))
+          print(createDocumentFromQuery(queries.definitions[1] as OperationDefinitionNode))
         );
         done();
       });
@@ -408,11 +408,11 @@ describe('ExtractGQL', () => {
         assert.equal(Object.keys(result).length, 2);
         assert.include(
           Object.keys(result),
-          print(createDocumentFromQuery(queries.definitions[0]))
+          print(createDocumentFromQuery(queries.definitions[0] as OperationDefinitionNode))
         );
         assert.include(
           Object.keys(result),
-          print(createDocumentFromQuery(queries.definitions[1]))
+          print(createDocumentFromQuery(queries.definitions[1] as OperationDefinitionNode))
         );
         done();
       });
@@ -420,7 +420,7 @@ describe('ExtractGQL', () => {
 
     it('should process a file with a fragment reference to a different file', () => {
       const expectedQuery = gql`
-        query {
+        query firstQuery {
           author {
             ...details
           }
@@ -443,7 +443,7 @@ describe('ExtractGQL', () => {
 
     it('should process a JS file with queries', () => {
       const expectedQuery = gql`
-        query {
+        query firstQuery {
           author {
             ...details
           }
@@ -490,6 +490,7 @@ describe('ExtractGQL', () => {
         query {
           author {
             firstName
+            middleName
             lastName
           }
         }`;
@@ -497,6 +498,7 @@ describe('ExtractGQL', () => {
         query {
           author {
             firstName
+            middleName
             lastName
             __typename
           }
@@ -506,7 +508,7 @@ describe('ExtractGQL', () => {
         queryTransformers: [ addTypenameTransformer ],
       });
       assert.equal(
-        myegql.getQueryKey(query.definitions[0]),
+        myegql.getQueryKey(query.definitions[0] as OperationDefinitionNode),
         print(transformedQuery.definitions[0])
       );
     });

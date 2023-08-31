@@ -1,6 +1,6 @@
 import { DocumentNode, OperationDefinitionNode } from 'graphql';
 import { OutputMap, QueryTransformer } from './common';
-export declare type ExtractGQLOptions = {
+export type ExtractGQLOptions = {
     inputFilePath: string;
     outputFilePath?: string;
     queryTransformers?: QueryTransformer[];
@@ -11,7 +11,7 @@ export declare type ExtractGQLOptions = {
 export declare enum PathType {
     DIRECTORY = 0,
     FILE = 1,
-    SYMBOLIC_LINK = 2,
+    SYMBOLIC_LINK = 2
 }
 export declare class ExtractGQL {
     inputFilePath: string;
@@ -26,7 +26,7 @@ export declare class ExtractGQL {
     static readFile(filePath: string): Promise<string>;
     static pathType(path: string): Promise<PathType>;
     static normalizePath(path: string): string;
-    constructor({inputFilePath, outputFilePath, queryTransformers, extensions, inJsCode, excludePaths}: ExtractGQLOptions);
+    constructor({ inputFilePath, outputFilePath, queryTransformers, extensions, inJsCode, excludePaths, }: ExtractGQLOptions);
     addQueryTransformer(queryTransformer: QueryTransformer): void;
     applyQueryTransformers(document: DocumentNode): DocumentNode;
     getQueryKey(definition: OperationDefinitionNode): string;

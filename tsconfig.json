@@ -13,7 +13,8 @@
     "noImplicitAny": true,
     "noImplicitReturns": true,
     "noFallthroughCasesInSwitch": true,
-    "types": [ "mocha", "node" ]
+    "types": ["mocha", "node"],
+    "skipLibCheck": true
   },
   "files": [
     "typings.d.ts",

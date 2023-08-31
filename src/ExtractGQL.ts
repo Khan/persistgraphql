@@ -11,6 +11,7 @@ import {
   print,
   DefinitionNode,
   separateOperations,
+  Kind,
 } from 'graphql';
 
 import {
@@ -177,6 +178,7 @@ export class ExtractGQL {
     const result: OutputMap = {};
     queryDefinitions.forEach((transformedDefinition) => {
       const transformedQueryWithFragments = this.getQueryFragments(transformedDocument, transformedDefinition);
+      // @ts-expect-error: definitions is readonly
       transformedQueryWithFragments.definitions.unshift(transformedDefinition);
       const docQueryKey = this.getQueryDocumentKey(transformedQueryWithFragments);
       result[docQueryKey] = this.getQueryId();
@@ -210,7 +212,7 @@ export class ExtractGQL {
     var operationNames = new Set<string>();
     var duplicates = new Set<string>();
     for (var i = 0; i < doc.definitions.length; i++) {
-      const name = doc.definitions[i].name.value;
+      const name = (doc.definitions[i] as OperationDefinitionNode).name.value;
       if (operationNames.has(name)) {
         console.log('Duplicate operation name found: ' + name);
         duplicates.add(name);
@@ -334,7 +336,7 @@ export class ExtractGQL {
   public getQueryFragments(document: DocumentNode, queryDefinition: OperationDefinitionNode): DocumentNode {
     const queryFragmentNames = getFragmentNames(queryDefinition.selectionSet, document);
     const retDocument: DocumentNode = {
-      kind: 'Document',
+      kind: Kind.DOCUMENT,
       definitions: [],
     };
 
@@ -354,6 +356,7 @@ export class ExtractGQL {
       return carry;
     };
     
+    // @ts-expect-error: definitions is readonly
     retDocument.definitions = document.definitions.reduce(
       reduceQueryDefinitions,
       ([] as FragmentDefinitionNode[])

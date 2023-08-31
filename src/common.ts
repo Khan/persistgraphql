@@ -9,6 +9,7 @@ import {
   OperationDefinitionNode,
   DocumentNode,
   print,
+  Kind,
 } from 'graphql';
 
 // A map from a key (id or a hash) to a GraphQL document.
@@ -49,6 +50,7 @@ export function sortFragmentsByName(a: DefinitionNode, b: DefinitionNode): numbe
 
 // Apply sorting strategy for fragments.
 export function applyFragmentDefinitionSort(document: DocumentNode): DocumentNode {
+  // @ts-expect-error: definitions is readonly
   document.definitions = document.definitions.sort(sortFragmentsByName);
   return document;
 }
@@ -73,7 +75,7 @@ export function getQueryKey(
   queryTransformers: QueryTransformer[] = [],
 ): string {
   const wrappingDocument: DocumentNode = {
-    kind: 'Document',
+    kind: Kind.DOCUMENT,
     definitions: [ definition ],
   };
   return print(applyQueryTransformers(
