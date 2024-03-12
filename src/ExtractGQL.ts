@@ -294,7 +294,6 @@ export class ExtractGQL {
         }
 
         if (isExcludedPath) {
-          console.log(`Excluding path ${inputPath}`);
           resolve('');
         } else if (pathType === PathType.SYMBOLIC_LINK) {
           // Ignoring symbolic links for now because we don't want to
@@ -303,7 +302,6 @@ export class ExtractGQL {
           // TODO(emilyling): Resolve symbolic links
           resolve('');
         } else if (pathType === PathType.DIRECTORY) {
-          console.log(`Crawling ${inputPath}...`);
           // Recurse over the files within this directory.
           fs.readdir(inputPath, (err, items) => {
             if (err) {
