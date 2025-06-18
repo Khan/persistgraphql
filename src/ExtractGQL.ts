@@ -227,8 +227,7 @@ export class ExtractGQL {
         dupes += name + ", ";
       });
       dupes = dupes.substring(0, dupes.length - 2);
-      console.log("Found the following duplicate GraphQL operation names: " + dupes);
-      process.exit(1);
+      throw new Error("Found the following duplicate GraphQL operation names: " + dupes);
     }
 
     const docMap = separateOperations(doc);
