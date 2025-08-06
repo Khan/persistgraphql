@@ -1,5 +1,4 @@
-import { HTTPFetchNetworkInterface, NetworkInterface, Request } from 'apollo-client';
-import { ExecutionResult } from 'graphql';
+import { HTTPFetchNetworkInterface, NetworkInterface } from 'apollo-client';
 import { OutputMap } from '../common';
 export declare class PersistedQueryNetworkInterface extends HTTPFetchNetworkInterface {
     queryMap: OutputMap;
@@ -13,6 +12,4 @@ export declare class PersistedQueryNetworkInterface extends HTTPFetchNetworkInte
         opts?: RequestInit;
     });
 }
-export declare function addPersistedQueries(networkInterface: NetworkInterface, queryMap: OutputMap): NetworkInterface & {
-    query: (request: Request) => Promise<ExecutionResult>;
-};
+export declare function addPersistedQueries(networkInterface: NetworkInterface, queryMap: OutputMap): any;

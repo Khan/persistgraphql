@@ -24,9 +24,8 @@
     "persistgraphql": "./bin/persistgraphql"
   },
   "dependencies": {
-    "apollo-client": "^1.1",
-    "graphql": "^16.3.0",
-    "graphql-tag": "^2.0.0",
+    "graphql": "16.10.0",
+    "graphql-tag": "2.8.0",
     "lodash": "^4.17.4",
     "whatwg-fetch": "^2.0.3",
     "yargs": "^7.1.0"
@@ -48,7 +47,6 @@
     "typescript": "^5.1.6"
   },
   "optionalDependencies": {
-    "@types/graphql": "^0.9.0",
     "@types/isomorphic-fetch": "0.0.34"
   }
 }
